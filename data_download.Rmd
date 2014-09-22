@@ -56,6 +56,12 @@ Behind the scenes the website is using AJAX and Javascript to asyncronously load
 
 First we will load the Store locator web page, once it has loaded we open the Developer tools and switch to the network tool. After clearing all the entries we can click Stores link and observe any new connections that occur.
 
+<br/>
+<div style="text-align:center; width:800px">
+![locations](imgs/locs_api.png)
+</div>
+<br/>
+
 We see a call to a url that looks something like,
 
 ```
@@ -108,7 +114,7 @@ jQuery17208834315296262503_1411349607147({
 Therefore, we can download data from the Starbucks API by manipulating this url.
 
 ```{r}
-url = "https://openapi.starbucks.com/v1/stores/nearby?callback=jQuery17205138783170841634_1411418054835&radius=50&limit=50&latLng=35.9981205%2C-78.89204440000003&ignore=storeNumber%2CownershipTypeCode%2CtimeZoneInfo%2CextendedHours%2ChoursNext7Days&brandCodes=SBUX&access_token=ga3tyvj9bgmkyuezazw2cwzk&_=1411418073026"
+url = "https://openapi.starbucks.com/v1/stores/nearby?callback=jQuery17203441971419379115_1411425009608&radius=50&limit=50&latLng=35.37538467194457%2C-79.28372712500004&ignore=storeNumber%2CownershipTypeCode%2CtimeZoneInfo%2CextendedHours%2ChoursNext7Days&brandCodes=SBUX&access_token=99v4s8uz566wdvcezzh6wewn&_=1411425017235"
 
 d=GET(url)
 
@@ -149,12 +155,12 @@ l=lapply(j$stores,
                          name = x$store$name,
                          brandName = x$store$brandName,
                          phoneNumber = x$store$phoneNumber,
-                         openDate = x$store$operatingStatus$openDate,
-                         status = x$store$operatingStatus$status,
-                         address = build_address(x$store$address),
+                         #openDate = x$store$operatingStatus$openDate,
+                         #status = x$store$operatingStatus$status,
+                         #address = build_address(x$store$address),
                          lat = x$store$coordinates$latitude,
                          long = x$store$coordinates$longitude,
-                         currency = x$store$currency,
+                         #currency = x$store$currency,
                          stringsAsFactors=FALSE)
          }
 )
