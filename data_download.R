@@ -59,7 +59,7 @@ l = lapply(d$stores, function(x){
     )
 })
 
+
 l = do.call(rbind, l)
 
-rbind(l[[1]], l[[2]], l[[3]] ... l[[50]])
-
+#rbind(l[[1]], l[[2]], l[[3]] ... l[[50]])
