@@ -154,13 +154,13 @@ l=lapply(j$stores,
               data.frame(id = x$store$id,
                          name = x$store$name,
                          brandName = x$store$brandName,
-                         phoneNumber = x$store$phoneNumber,
-                         #openDate = x$store$operatingStatus$openDate,
-                         #status = x$store$operatingStatus$status,
-                         #address = build_address(x$store$address),
+                         #phoneNumber = x$store$phoneNumber,
+                         openDate = x$store$operatingStatus$openDate,
+                         status = x$store$operatingStatus$status,
+                         address = build_address(x$store$address),
                          lat = x$store$coordinates$latitude,
                          long = x$store$coordinates$longitude,
-                         #currency = x$store$currency,
+                         currency = x$store$currency,
                          stringsAsFactors=FALSE)
          }
 )
