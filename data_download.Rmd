@@ -108,7 +108,7 @@ jQuery17208834315296262503_1411349607147({
 Therefore, we can download data from the Starbucks API by manipulating this url.
 
 ```{r}
-url = "https://openapi.starbucks.com/v1/stores/nearby?callback=jQuery17208834315296262503_1411349607148&radius=50&limit=50&latLng=35.9981205%2C-78.89204440000003&ignore=storeNumber%2CownershipTypeCode%2CtimeZoneInfo%2CextendedHours%2ChoursNext7Days&brandCodes=SBUX&access_token=3mrq93gq8m8347stk5ck99a9&_=1411350894873"
+url = "https://openapi.starbucks.com/v1/stores/nearby?callback=jQuery17205138783170841634_1411418054835&radius=50&limit=50&latLng=35.9981205%2C-78.89204440000003&ignore=storeNumber%2CownershipTypeCode%2CtimeZoneInfo%2CextendedHours%2ChoursNext7Days&brandCodes=SBUX&access_token=ga3tyvj9bgmkyuezazw2cwzk&_=1411418073026"
 
 d=GET(url)
 
@@ -121,13 +121,13 @@ write(content(d, as="text"), file=file)
 as before we want to cache the files locally so that we don't need to make excessive calls to the API. We need to make a couple of small modifications to make sure that the JSON is valid and can itself be parsed.
 
 ```{r}
-s = readLines(file = file)
+s = readLines(file)
 stopifnot(length(s) == 1)
 
 s = str_replace(s, "jQuery[0-9_]+\\(","")
 s = str_replace(s, "}\\)","}")  
 
-j = fromJSON(s)
+j = fromJSON(s, simplifyDataFrame=FALSE)
 ```
 
 Now we'll construct a data frame from the relevant entries
@@ -143,20 +143,20 @@ build_address = function(x)
 }
 
 l=lapply(j$stores, 
-       function(x)
-       {
-            data.frame(id = x$store$id,
-                       name = x$store$name,
-                       brandName = x$store$brandName,
-                       phoneNumber = x$store$phoneNumber,
-                       openDate = x$store$operatingStatus$openDate,
-                       status = x$store$operatingStatus$status,
-                       address = build_address(x$store$address),
-                       lat = x$store$coordinates$latitude,
-                       long = x$store$coordinates$longitude,
-                       currency = x$store$currency,
-                       stringsAsFactors=FALSE)
-       }
+         function(x)
+         {
+              data.frame(id = x$store$id,
+                         name = x$store$name,
+                         brandName = x$store$brandName,
+                         phoneNumber = x$store$phoneNumber,
+                         openDate = x$store$operatingStatus$openDate,
+                         status = x$store$operatingStatus$status,
+                         address = build_address(x$store$address),
+                         lat = x$store$coordinates$latitude,
+                         long = x$store$coordinates$longitude,
+                         currency = x$store$currency,
+                         stringsAsFactors=FALSE)
+         }
 )
 
 l = do.call("rbind",l)
