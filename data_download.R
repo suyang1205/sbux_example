@@ -5,61 +5,65 @@ check_packages(c("httr","XML","stringr","jsonlite","rgeos","maptools"))
 
 # Get county locations
 nc_shp = readShapeSpatial(system.file("shapes/sids.shp", package="maptools")[1])
-county_locs = coordinates(gCentroid(nc.shp, byid=TRUE))
+county_locs = coordinates(gCentroid(nc_shp, byid=TRUE))
 rownames(county_locs) = as.character(nc_shp$NAME)
 
 
-# Download Data
+# Get Data
 
-zip = 27701
-url = paste0("http://www.starbucks.com/store-locator/search/location/",zip)
+dir.create("json/", showWarnings = FALSE)
 
-# dir.create("html/", showWarnings = FALSE)
-# 
-# file = paste0("html/",zip,".html")
-# 
-# 
-# write(content(GET(url), as="text"), file=file)
-# 
-# 
-# d = xmlRoot(htmlParse(file))
-# 
-# ul = getNodeSet(d, "//ul[@id='searchResults']")
+token = "z8f4vwmg4jm5ex6wdtzcsqnp"
+other = "1411507618546"
 
 
-### FAIL
+for(i in 1:nrow(county_locs))
+{
+    name = rownames(county_locs)[i]
+    lat  = county_locs[i,2]
+    long = county_locs[i,1]
 
+    offset = 0
+    j = 1
 
-# Attempt 2
+    repeat 
+    {
+        cat("Fetching",name,"- Page",j,"...\n")
 
-url = "https://openapi.starbucks.com/v1/stores/nearby?callback=jQuery17205138783170841634_1411418054835&radius=50&limit=50&latLng=35.9981205%2C-78.89204440000003&ignore=storeNumber%2CownershipTypeCode%2CtimeZoneInfo%2CextendedHours%2ChoursNext7Days&brandCodes=SBUX&access_token=ga3tyvj9bgmkyuezazw2cwzk&_=1411418073026"
+        url = paste0("https://openapi.starbucks.com/v1/stores/nearby",
+                 "?callback=jQuery17205138783170841634_1411418054835",
+                 "&radius=50",
+                 "&limit=50",
+                 "&latLng=", lat, "%2C", long,
+                 "&ignore=storeNumber%2CownershipTypeCode%2CtimeZoneInfo%2CextendedHours%2ChoursNext7Days",
+                 "&brandCodes=SBUX",
+                 "&access_token=", token,
+                 "&_=", other,
+                 "&offset=",offset)
 
-d=GET(url)
+        d=GET(url)
 
-stopifnot(d$status_code == 200)
+        stopifnot(d$status_code == 200)
 
-file = paste0("json/",zip,".json")
-write(content(d, as="text"), file=file)
+        # Clean up jQuery wrapper to get valid json
+        s = content(d, as="text")
+        s = str_replace(s, "[a-zA-Z0-9_]+\\(", "")
+        s = str_replace(s, "}\\)","}")
 
-s = readLines(file)
+        # Save the file locally
+        file = paste0("json/",name,"_",j,".json")
+        write(s, file=file)
+        
+        json = fromJSON(s)
 
-s = str_replace(s, "[a-zA-Z0-9_]+\\(", "")
-s = str_replace(s, "}\\)","}")
+        if (json$paging$total <= offset+50)
+            break
 
-d = fromJSON(s)
+        offset = offset+50
+        j = j+1
+    }
 
+    # Wait a bit before moving on to the next county
+    Sys.sleep(rexp(1,1/5))
+}
 
-l = lapply(d$stores, function(x){
-    data.frame(
-        id = x$store$id,
-        name = x$store$name,
-        lat = x$store$coordinates$latitude,
-        long= x$store$coordinates$longitude,
-        stringsAsFactors = FALSE
-    )
-})
-
-
-l = do.call(rbind, l)
-
-#rbind(l[[1]], l[[2]], l[[3]] ... l[[50]])
